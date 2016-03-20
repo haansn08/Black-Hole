@@ -27,4 +27,6 @@ public class Game {
         }
     }
 
+    public int getFieldSize() {return fieldSize;}
+    public GameField getField() {return field;}
 }

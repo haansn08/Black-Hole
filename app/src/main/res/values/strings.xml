@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Black Hole</string>
+    <string name="circle_select">Tap an empty circle to select it</string>
+    <string name="tap_again">Tap again to place your number</string>
+
 </resources>
