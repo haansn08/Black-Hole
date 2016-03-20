@@ -5,12 +5,14 @@ package com.shaan.blackhole;
  */
 public class GameField {
     private int lines;
-    private int values[];
+    private int numbers[];
+    private int player[];
 
     public GameField(int lines) {
         this.lines = lines;
         int arraySize = lines * (lines + 1) / 2;
-        values = new int[arraySize];
+        numbers = new int[arraySize];
+        player = new int[arraySize];
     }
 
     public GameField() {
@@ -21,8 +23,8 @@ public class GameField {
         return lines;
     }
 
-    private int calculateArrayIndex(int line, int row) {
-        return line * (line + 1) / 2 + 1 + row;
+    private static int calculateArrayIndex(int line, int row) {
+        return line * (line + 1) / 2 + row;
     }
 
     private void checkCoords(int line, int row) {
@@ -30,15 +32,25 @@ public class GameField {
             throw new IndexOutOfBoundsException("Coordinates out of bounds");
     }
 
-    public int getField(int line, int row) {
+    public int getFieldNumber(int line, int row) {
         checkCoords(line, row);
-        return values[calculateArrayIndex(line, row)];
+        return numbers[calculateArrayIndex(line, row)];
     }
 
-    public void setField(int line, int row, int value) throws Exception {
-        if(getField(line, row) != 0)
-            throw new Exception("Unable to set field, which is already taken");
-        values[calculateArrayIndex(line, row)] = value;
+
+    public int getFieldPlayer(int line, int row) {
+        checkCoords(line, row);
+        return player[calculateArrayIndex(line, row)];
+    }
+
+    public boolean applyMove(GameMove move) {
+        checkCoords(move.line, move.row);
+        int arrayIndex = calculateArrayIndex(move.line, move.row);
+        if (numbers[arrayIndex] != 0)
+            return false;
+        numbers [arrayIndex] = move.number;
+        player  [arrayIndex] = move.player;
+        return true;
     }
 
 }

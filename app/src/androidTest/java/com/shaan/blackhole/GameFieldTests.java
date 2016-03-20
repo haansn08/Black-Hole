@@ -13,36 +13,35 @@ public class GameFieldTests extends TestCase {
 
         GameField gameField1 = new GameField(5);
         assertEquals(5, gameField1.getLines());
-        assertEquals(0, gameField1.getField(0,0));
+        assertEquals(0, gameField1.getFieldNumber(0, 0));
         try{
-            gameField1.getField(0,1);
+            gameField1.getFieldNumber(0, 1);
             fail("Impossible Coords");
         } catch (IndexOutOfBoundsException e){}
         try{
-            gameField1.getField(4,5);
+            gameField1.getFieldNumber(4, 5);
             fail("Impossible Coords");
         } catch (IndexOutOfBoundsException e){}
         try{
-            gameField1.getField(5,0);
+            gameField1.getFieldNumber(5, 0);
             fail("Impossible Coords");
         } catch (IndexOutOfBoundsException e){}
     }
 
     public void testFieldAccess() throws Exception {
         GameField gameField = new GameField();
-        gameField.setField(0, 0, 4);
-        gameField.setField(4, 4, 9);
-        assertEquals(4, gameField.getField(0, 0));
-        assertEquals(9, gameField.getField(4, 4));
-        try{
-            gameField.setField(4, 4, 5);
-            fail("Able to set field, which is taken");
-        } catch (Exception e) {
-            assertEquals(9, gameField.getField(4, 4));
-        }
-        try{
-            gameField.setField(4, 5, 8);
-            fail("Impossible coords");
-        } catch (IndexOutOfBoundsException e) {}
+        GameMove move1 = new GameMove(0, 0, 0, 1);
+        GameMove move2 = new GameMove(2, 2, 1, 1);
+        GameMove move3 = new GameMove(3, 2, 0, 2);
+        GameMove illegalMove1 = new GameMove(3, 2, 1, 4);
+        assertTrue(gameField.applyMove(move1));
+        assertTrue(gameField.applyMove(move2));
+        assertTrue(gameField.applyMove(move3));
+        assertFalse(gameField.applyMove(illegalMove1));
+        assertEquals(1, gameField.getFieldNumber(0, 0));
+        assertEquals(1, gameField.getFieldNumber(2, 2));
+        assertEquals(2, gameField.getFieldNumber(3, 2));
+        assertEquals(0, gameField.getFieldPlayer(0, 0));
+        assertEquals(1, gameField.getFieldPlayer(2, 2));
     }
 }
