@@ -1,9 +1,11 @@
 package com.shaan.blackhole;
 
+import java.util.Iterator;
+
 /**
  * Created by stefan on 20/03/16.
  */
-public class GameField {
+public class GameField implements Iterable<GameMove>{
     private int lines;
     private int numbers[];
     private int player[];
@@ -27,24 +29,26 @@ public class GameField {
         return line * (line + 1) / 2 + row;
     }
 
-    private void checkCoords(int line, int row) {
-        if (!(line < lines) || row > line)
-            throw new IndexOutOfBoundsException("Coordinates out of bounds");
+    public boolean isValidCoords(int line, int row) {
+        return (line < lines) || row > line;
     }
 
     public int getFieldNumber(int line, int row) {
-        checkCoords(line, row);
-        return numbers[calculateArrayIndex(line, row)];
+        if (isValidCoords(line, row))
+            return numbers[calculateArrayIndex(line, row)];
+        return 0;
     }
 
 
     public int getFieldPlayer(int line, int row) {
-        checkCoords(line, row);
-        return player[calculateArrayIndex(line, row)];
+        if (isValidCoords(line, row))
+            return player[calculateArrayIndex(line, row)];
+        return -1;
     }
 
     public boolean applyMove(GameMove move) {
-        checkCoords(move.line, move.row);
+        if (!isValidCoords(move.line, move.row))
+            return false;
         int arrayIndex = calculateArrayIndex(move.line, move.row);
         if (numbers[arrayIndex] != 0)
             return false;
@@ -53,4 +57,36 @@ public class GameField {
         return true;
     }
 
+    @Override
+    public Iterator<GameMove> iterator() {
+        return new Iterator<GameMove>() {
+            int currentR = 0;
+            int currentL = 0;
+            @Override
+            public boolean hasNext() {
+                return calculateArrayIndex(currentL, currentR) < numbers.length;
+            }
+
+            @Override
+            public GameMove next() {
+                int arrayIndex = calculateArrayIndex(currentL, currentR);
+                GameMove result = new GameMove(
+                        currentL,
+                        currentR,
+                        player[arrayIndex],
+                        numbers[arrayIndex]
+                );
+                if (currentR == currentL){
+                    currentL++;
+                    currentR=0;
+                } else {currentR++;}
+                return result;
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
+    }
 }

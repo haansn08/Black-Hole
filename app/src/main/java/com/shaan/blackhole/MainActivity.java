@@ -16,24 +16,7 @@ public class MainActivity extends AppCompatActivity {
         );
 
         GameView v_game = (GameView) findViewById(R.id.v_game);
-        Player mockPlayer = new Player() {
-            int line = 0, row = 0;
-            @Override
-            public GameMove doMove() {
-                GameMove result = new GameMove(line, row);
-                if (row == line){
-                    line++;
-                    row=0;
-                } else {row++;}
-                return result;
-            }
-        };
-        Game game = new Game(mockPlayer, mockPlayer, 6);
-        try {
-            game.startGame();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Game game = new Game(6);
         v_game.setGame(game);
     }
 }

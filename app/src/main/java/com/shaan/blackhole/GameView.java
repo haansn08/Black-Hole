@@ -3,19 +3,16 @@ package com.shaan.blackhole;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 /**
  * Created by stefan on 20/03/16.
  */
-public class GameView extends View {
+public class GameView extends View implements Game.OnGameOverListener{
     private final Paint bluePaint;
     private final Paint blueSelectionPaint;
     private final Paint blackLinePaint;
@@ -27,6 +24,9 @@ public class GameView extends View {
 
     private PointF lastTouch = new PointF();
     private int selectedL, selectedR;
+
+    boolean isGameOver = false;
+    int playerWon = 0;
 
     public GameView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -61,7 +61,7 @@ public class GameView extends View {
         selectedR = -1;
 
         radius = canvas.getWidth() / (2*game.getFieldSize() + 2); //Calculate raduis for circles
-        float cx, cy; //Center for each circle
+        float cx, cy; //Center of each circle
         cx = canvas.getWidth() / 2 - radius;
         cy = 0;
         for (int l = 0; l < game.getFieldSize(); l++) {
@@ -76,7 +76,8 @@ public class GameView extends View {
                 drawGameCircle(canvas, l, r);
                 float distanceToTouch = PointF.length(lastTouch.x - cx, lastTouch.y - cy);
                 if (distanceToTouch < radius) {
-                    canvas.drawCircle(0, 0, radius, blueSelectionPaint);
+                    if (!isGameOver)
+                        canvas.drawCircle(0, 0, radius, blueSelectionPaint);
                     selectedL = l;
                     selectedR = r;
                 }
@@ -84,6 +85,22 @@ public class GameView extends View {
                 canvas.restore();
             }
         }
+
+        if(isGameOver)
+            drawGameOverMessage(canvas, (game.getFieldSize() + 1) * (2 * radius));
+    }
+
+    private void drawGameOverMessage(Canvas canvas, float y) {
+        Paint playerPaint = playerWon == 0 ? redPaint : bluePaint;
+        String playerName = playerWon == 0 ? "Red" : "Blue";
+        String message = "Player " + playerName + " won!";
+        canvas.drawText(
+                message,
+                canvas.getWidth() / 2 - playerPaint.measureText(message) / 2,
+                y,
+                playerPaint
+        );
+        isGameOver = false;
     }
 
     private void drawGameCircle(Canvas canvas, int l, int r) {
@@ -110,15 +127,23 @@ public class GameView extends View {
 
     public void setGame(Game game) {
         this.game = game;
+        game.setOnGameOverListener(this);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         lastTouch = new PointF(event.getX(), event.getY());
         if(event.getAction() == MotionEvent.ACTION_UP && selectedL != -1 && selectedR != -1){
-            Toast.makeText(getContext(), "R"+selectedR+"L"+selectedL, Toast.LENGTH_SHORT).show();
+            game.onPlayerSelect(selectedR, selectedL);
         }
         invalidate();
         return true;
+    }
+
+    @Override
+    public void onGameOver(int playerWon) {
+        isGameOver = true;
+        this.playerWon = playerWon;
+        setGame(new Game(game.getFieldSize())); //restart this thing
     }
 }
